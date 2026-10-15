@@ -212,7 +212,8 @@ def _preview_geojson(path, output, *, layer=None, values=None, value_range=None)
                 )
     Path(output).write_text(
         json.dumps({"type": "FeatureCollection", "features": features}, allow_nan=False)
-        + "\n"
+        + "\n",
+        encoding="utf-8",
     )
 
 
@@ -466,7 +467,7 @@ def create_app(configuration=None):
                 "layer": params.get("input_layer_name") or params.get("layer_name"),
                 "parameters": config.to_dict(),
             }
-            (job / "request.json").write_text(json.dumps(payload))
+            (job / "request.json").write_text(json.dumps(payload), encoding="utf-8")
             completed = subprocess.run(
                 [
                     sys.executable,
@@ -480,6 +481,8 @@ def create_app(configuration=None):
                 ],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                env={**os.environ, "PYTHONIOENCODING": "utf-8"},
                 timeout=app.config["MAX_RUN_SECONDS"],
             )
             if completed.returncode:

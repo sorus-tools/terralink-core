@@ -236,7 +236,7 @@ def _execute(
                 )
             raw.read(str(gpkg), layer="Contiguous Areas")
             report = Path(stats.get("landscape_metrics_path", ""))
-            if not report.is_file() or report.read_text().startswith(
+            if not report.is_file() or report.read_text(encoding="utf-8").startswith(
                 "Landscape analysis failed:"
             ):
                 raise TerraLinkError("Landscape metrics failed; see run.log")
@@ -303,14 +303,15 @@ def _execute(
                 _json_safe(_portable_paths(manifest, output)), indent=2, allow_nan=False
             )
             manifest_path = output / "run.json"
-            manifest_path.write_text(clean + "\n")
+            manifest_path.write_text(clean + "\n", encoding="utf-8")
             (output / "metrics.json").write_text(
                 json.dumps(
                     _json_safe(_portable_paths(stats, output)),
                     indent=2,
                     allow_nan=False,
                 )
-                + "\n"
+                + "\n",
+                encoding="utf-8",
             )
             return RunResult(
                 output,
@@ -330,7 +331,7 @@ def _execute(
                 QgsProject.instance().removeMapLayer(lid)
             random.setstate(random_state)
             np.random.set_state(numpy_state)
-            (output / "run.log").write_text(log.getvalue())
+            (output / "run.log").write_text(log.getvalue(), encoding="utf-8")
 
 
 def _verify_barriers(gpkg, layer, obstacles, params):

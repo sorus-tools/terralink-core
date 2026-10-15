@@ -43,7 +43,7 @@ def main(argv=None):
             )
             create_app(configuration).run(host=args.host, port=args.port, threaded=True)
             return 0
-        request = json.loads(args.config.read_text())
+        request = json.loads(args.config.read_text(encoding="utf-8"))
         allowed = {"mode", "input", "layer", "obstacles", "parameters"}
         if set(request) - allowed:
             raise TerraLinkError(

@@ -25,6 +25,10 @@ reported separately; do not assume the same result merely because strategy
 names match. The existing hosted SORUS tool and stable QGIS installation are
 not replaced automatically by installing this preview.
 
+R users who explicitly want the shared Python engine can also use the
+[optional R bridge](integrations/r/README.md), which returns `sf` objects when
+available. The existing native R functions keep their independent runtime.
+
 ## Install from source
 
 Python 3.11 or newer is required. No desktop GIS is required. The standalone
