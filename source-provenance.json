@@ -1,0 +1,47 @@
+{
+  "upstream": "https://github.com/sorus-tools/TerraLink",
+  "revision": "2cb4a568e8990d7834019ce9bdbdfb7f3ae893f4",
+  "plugin_version": "1.8.3",
+  "files": {
+    "analysis_vector.py": {
+      "original_sha256": "d08e1e90a4755d8a19254d0699edb7cb26b8ce7d5e484a3bf4c497dccdcee6d7",
+      "extracted_sha256": "04cac57d8e16287cd2a066a786eedd0192994495f9755287f405bfc4c7e683e8",
+      "changes": "Import geometry backend through local compatibility layer"
+    },
+    "terralink_engine.py": {
+      "original_sha256": "b6bd5f4f5fd9f08bd0cd9d18c46a2a171a2c6e332c1facef7f112e401bbf6344",
+      "extracted_sha256": "b6bd5f4f5fd9f08bd0cd9d18c46a2a171a2c6e332c1facef7f112e401bbf6344",
+      "changes": "Unmodified"
+    },
+    "terralink_graph.py": {
+      "original_sha256": "694d304ac76d06bb7fb6f6b2f4654275dc306307fb05064a8b8537b1a1eb1283",
+      "extracted_sha256": "694d304ac76d06bb7fb6f6b2f4654275dc306307fb05064a8b8537b1a1eb1283",
+      "changes": "Unmodified"
+    },
+    "graph_math.py": {
+      "original_sha256": "a9c5006af35144050d0b8509d1eae9ecf2e38af8c9e5626dcb3eb66eef291a94",
+      "extracted_sha256": "a9c5006af35144050d0b8509d1eae9ecf2e38af8c9e5626dcb3eb66eef291a94",
+      "changes": "Unmodified"
+    },
+    "core_types.py": {
+      "original_sha256": "dfbfa11c4938e1cc51eae3ed004a32980c2da499ec4f7226fd5e02a61dd2736d",
+      "extracted_sha256": "dfbfa11c4938e1cc51eae3ed004a32980c2da499ec4f7226fd5e02a61dd2736d",
+      "changes": "Unmodified"
+    },
+    "core_select.py": {
+      "original_sha256": "b3d5fae8b96afc5aa52c4a89bbaeea7d77a101ed84e49bd0866ef061ea9c7638",
+      "extracted_sha256": "b3d5fae8b96afc5aa52c4a89bbaeea7d77a101ed84e49bd0866ef061ea9c7638",
+      "changes": "Unmodified"
+    },
+    "landscape_metrics.py": {
+      "original_sha256": "bd5c78539987876384f4d85428c1cc1a6eba1316c6844d269fd563a7cb702614",
+      "extracted_sha256": "bd5c78539987876384f4d85428c1cc1a6eba1316c6844d269fd563a7cb702614",
+      "changes": "Unmodified"
+    },
+    "utils.py": {
+      "original_sha256": "88c4c8ea99ba2b08945d99936174f951dadc0965a3e9cebd0560a98a0e03ce33",
+      "extracted_sha256": "8b1a7b2fc846608c40ab2677e1b33e875a6e975d0517bc0479103e97b31648a9",
+      "changes": "Interface-independent callback; QGIS preview bundle restores upstream Qt event handling"
+    }
+  }
+}

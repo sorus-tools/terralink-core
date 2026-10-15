@@ -1,0 +1,2024 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import "../../styles/global.css";
+import heroImage from "../../assets/terralink-hero.png";
+
+const title = "TerraLink - Wildlife Habitat Connectivity Tool | Sorus";
+const description = "Run TerraLink corridor optimization online with vector or raster inputs.";
+const runnerUrl = import.meta.env.PUBLIC_TERRALINK_RUNNER_URL || "/api";
+const buttondownUsername = "";
+const hasButtondownNewsletter = Boolean(buttondownUsername);
+const buttondownSubscribeUrl = hasButtondownNewsletter
+  ? `https://buttondown.com/api/emails/embed-subscribe/${buttondownUsername}`
+  : "";
+---
+<BaseLayout title={title} description={description} image="/images/terralink/terralink-social-preview.png" noindex={true}>
+  <Fragment slot="head">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </Fragment>
+  <Header />
+
+  <section class="bg-[#f4efe5] border-b border-black/10">
+    <div class="mx-auto max-w-6xl px-6 py-16">
+      <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div class="max-w-3xl">
+          <h1 class="text-3xl font-semibold leading-tight text-[#1f2a1d] md:text-5xl">TerraLink - Wildlife Habitat Connectivity Tool</h1>
+        <p class="mt-4 text-base leading-relaxed text-[#4a5546]">
+          Restoring ecological connectivity is essential for biodiversity, climate resilience, and long-term ecosystem stability.
+          TerraLink helps identify where corridors can reconnect fragmented habitats so species can move, adapt, and persist across working landscapes.
+          Upload a zipped shapefile, GeoJSON, KML, or GeoTIFF, set corridor width, budget, and patch thresholds, choose from four optimization modes, then review contiguous areas, corridor outputs, and connectivity metrics directly on the map.
+          Try TerraLink with your own data below and&nbsp;
+          <a
+            class="font-semibold text-[#1f2a1d] underline-offset-4 hover:underline"
+            href="https://github.com/sorus-tools/terralink-core"
+          >
+            read more about TerraLink here
+          </a>
+          .
+        </p>
+        </div>
+        <div class="relative">
+          <div class="absolute -inset-4 rounded-[32px] bg-gradient-to-br from-white/80 via-white/40 to-transparent blur-xl"></div>
+          <img
+            src={heroImage.src ?? heroImage}
+            alt="Aerial landscape mosaic with forests, fields, and water bodies."
+            class="relative w-full rounded-[28px] border border-black/10 object-cover shadow-[0_20px_60px_-30px_rgba(0,0,0,0.4)]"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[96rem] px-4 py-8 sm:px-6 lg:py-10">
+    <div class="grid gap-6 lg:grid-cols-[minmax(420px,520px)_minmax(0,1fr)] lg:items-start">
+      <form id="terralink-form" class="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+        <div class="text-xs font-semibold uppercase tracking-[0.35em] text-[#7a7a60]">Inputs</div>
+        <h2 class="mt-4 text-2xl font-semibold text-[#1f2a1d]">Run TerraLink</h2>
+        <p class="mt-2 text-sm text-[#4a5546]">
+          Choose vector (polygons) or raster (GeoTIFF) input, then set your budget, corridor width, and search settings.
+          After selecting a file, click <span class="font-semibold">Run TerraLink</span> to generate corridors and contiguous habitat areas, then review them on the map and in the results panel.
+        </p>
+
+        <div class="mt-5 space-y-3">
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="layerType">Input type</label>
+            <select id="layerType" name="layerType" class="h-8 w-full rounded-xl border border-black/10 px-3 text-sm">
+              <option value="vector" selected>Vector / Polygon / Boundary</option>
+              <option value="raster">Raster / LULC / Grid</option>
+            </select>
+            <p
+              class="field-note text-xs text-[#7a7a60]"
+              data-tooltip="Vector uses polygons for patches.&#10; Raster uses a GeoTIFF land-cover grid.&#10; Choose the format that matches your data."
+            >
+              Select the patch layer format.
+            </p>
+          </div>
+
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="inputFile">Habitat patch file</label>
+            <div class="flex items-start gap-2.5 flex-wrap">
+              <label
+                for="inputFile"
+                class="inline-flex h-7 min-w-[92px] whitespace-nowrap items-center justify-center rounded-full border border-black/10 bg-white px-4 text-xs font-semibold leading-none text-[#1f2a1d] shadow-sm hover:bg-black/[0.04] cursor-pointer"
+              >
+                Choose file
+              </label>
+              <span
+                class="field-note text-[11px] leading-tight text-[#7a7a60]"
+                id="fileHelp"
+                data-tooltip="Upload the patch layer file for this run.&#10; Vector supports ZIP, KML, GeoJSON, or GPKG.&#10; Raster supports GeoTIFF."
+              >
+                ZIP, KML, GeoJSON, or GPKG (max 50 MB).
+              </span>
+            </div>
+            <input
+              id="inputFile"
+              name="inputFile"
+              type="file"
+              accept=".zip,.geojson,.json,.kml,.gpkg,.tif,.tiff"
+              class="sr-only"
+              required
+            />
+          </div>
+        </div>
+
+<button id="loadDemo" type="button" class="mt-4 rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">Try the example landscape</button>
+        <div class="mt-5 grid gap-4">
+        <section class="space-y-3 rounded-2xl border border-black/10 bg-[#fcfbf7] p-4">
+          <div class="text-xs font-semibold uppercase tracking-[0.24em] text-[#7a7a60]">Patch Definition</div>
+          <div id="sharedFields" class="space-y-3">
+            <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+              <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="units">Units</label>
+              <select id="units" name="units" class="h-8 w-full rounded-xl border border-black/10 px-3 text-sm">
+                <option value="metric" selected>Metric (ha / m)</option>
+                <option value="imperial">Imperial (ac / ft)</option>
+                <option value="pixels">Pixels (px)</option>
+              </select>
+              <p
+                class="field-note text-xs text-[#7a7a60]"
+                data-tooltip="Controls how inputs are interpreted and outputs reported.&#10; Metric uses ha/m; imperial uses ac/ft.&#10; Pixels are available for raster runs."
+              >
+                Unit system for area and distance.
+              </p>
+            </div>
+          </div>
+
+          <div id="rasterFields" hidden class="space-y-3">
+            <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+              <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="rasterPatchValues">Patch values</label>
+              <input id="rasterPatchValues" name="rasterPatchValues" type="text" placeholder="e.g. 3 or 3,5,7" class="h-8 w-full rounded-xl border border-black/10 px-3 text-sm" />
+              <p
+                class="field-note text-xs text-[#7a7a60]"
+                data-tooltip="List raster values representing habitat patches.&#10; Example: 3,5,7.&#10; Leave blank to preview all classes."
+              >
+                Values to treat as habitat patches.
+              </p>
+            </div>
+            <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+              <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="rasterNeighborhood">Neighborhood</label>
+              <select id="rasterNeighborhood" name="rasterNeighborhood" class="h-8 w-full rounded-xl border border-black/10 px-3 text-sm">
+                <option value="4">4</option>
+                <option value="8" selected>8</option>
+              </select>
+              <p
+                class="field-note text-xs text-[#7a7a60]"
+                data-tooltip="Defines how adjacent raster cells form patches.&#10; 4-conn is stricter; 8-conn merges diagonals.&#10; This only applies in raster mode."
+              >
+                Connectivity for raster patch labeling.
+              </p>
+            </div>
+          </div>
+
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="minPatch">Min patch size</label>
+            <div class="relative">
+              <input id="minPatch" name="minPatch" type="number" step="any" min="0" value="10" class="h-8 w-full rounded-xl border border-black/10 pl-3 pr-10 text-sm" />
+              <span id="minPatchUnit" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#7a7a60]">ha</span>
+            </div>
+            <p
+              class="field-note text-xs text-[#7a7a60]"
+              data-tooltip="Filters out patches smaller than this value.&#10; Helps remove tiny fragments.&#10; Units follow your selection."
+            >
+              Minimum patch size to include.
+            </p>
+          </div>
+        </section>
+
+        <section class="space-y-3 rounded-2xl border border-black/10 bg-white p-4">
+          <div class="text-xs font-semibold uppercase tracking-[0.24em] text-[#7a7a60]">Corridor Generation</div>
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="strategy">Strategy</label>
+            <select id="strategy" name="strategy" class="h-8 w-full rounded-xl border border-black/10 px-3 text-sm">
+              <option value="most_connected_networks_2" selected>Most Connected Networks A - maximize component-pair value</option>
+              <option value="most_connected_networks">Most Connected Networks B - maximize connected habitat</option>
+              <option value="largest_single_network">Largest Single Network - build one backbone</option>
+              <option value="landscape_fluidity">Landscape Fluidity - improve movement and redundancy</option>
+            </select>
+            <p
+              class="field-note text-xs text-[#7a7a60]"
+              data-tooltip="Most Connected Networks A prioritizes high-value joins between existing components.&#10; Most Connected Networks B maximizes connected habitat across subnetworks.&#10; Largest Single Network prioritizes one backbone.&#10; Landscape Fluidity improves movement and redundancy."
+            >
+              Select the connectivity objective for this run.
+            </p>
+          </div>
+
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="budget">Budget</label>
+            <div class="relative">
+              <input id="budget" name="budget" type="number" step="any" min="0" value="5" class="h-8 w-full rounded-xl border border-black/10 pl-3 pr-10 text-sm" />
+              <span id="budgetUnit" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#7a7a60]">ha</span>
+            </div>
+            <p
+              class="field-note text-xs text-[#7a7a60]"
+              data-tooltip="Limits total corridor area selected.&#10; Higher budgets allow more corridors.&#10; Units follow your selection."
+            >
+              Total corridor area budget.
+            </p>
+          </div>
+
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="minWidth">Min width</label>
+            <div class="relative">
+              <input id="minWidth" name="minWidth" type="number" step="any" min="0" value="20" class="h-8 w-full rounded-xl border border-black/10 pl-3 pr-10 text-sm" />
+              <span id="minWidthUnit" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#7a7a60]">m</span>
+            </div>
+            <p
+              class="field-note text-xs text-[#7a7a60]"
+              data-tooltip="Sets the minimum corridor width.&#10; Wider corridors consume budget faster.&#10; Units follow your selection."
+            >
+              Minimum corridor width.
+            </p>
+          </div>
+
+          <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+            <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="maxSearch">Max search</label>
+            <div class="relative">
+              <input id="maxSearch" name="maxSearch" type="number" step="1" min="0" value="5000" class="h-8 w-full rounded-xl border border-black/10 pl-3 pr-10 text-sm" />
+              <span id="maxSearchUnit" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#7a7a60]">m</span>
+            </div>
+            <p
+              class="field-note text-xs text-[#7a7a60]"
+              data-tooltip="Limits how far to search between patches.&#10; Use 0 to auto-scale.&#10; Smaller values run faster."
+            >
+              Max search distance (0 = auto).
+            </p>
+          </div>
+
+        </section>
+
+        <section id="impassableOptions" class="space-y-3 rounded-2xl border border-black/10 bg-white p-4">
+          <div class="text-xs font-semibold uppercase tracking-[0.24em] text-[#7a7a60]">Impassable Layer</div>
+          <div id="vectorOptions" class="space-y-3">
+            <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+              <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="vectorObstacleFile">Impassable layer</label>
+              <div class="flex items-center gap-3">
+                <label
+                  for="vectorObstacleFile"
+                  class="inline-flex h-7 min-w-[92px] whitespace-nowrap items-center justify-center rounded-full border border-black/10 bg-white px-4 text-xs font-semibold leading-none text-[#1f2a1d] shadow-sm hover:bg-black/[0.04] cursor-pointer"
+                >
+                  Choose file
+                </label>
+                <span id="vectorObstacleFileName" class="truncate text-xs text-[#4a5546]">Optional</span>
+              </div>
+              <p
+                class="field-note text-xs text-[#7a7a60]"
+                data-tooltip="Optional polygon barrier layer for vector runs.&#10; Corridors must not be built through these areas and will route around them where possible.&#10; Supports ZIP, GeoJSON, KML, or GPKG."
+              >
+                Provide areas where corridors must avoid.
+              </p>
+              <input
+                id="vectorObstacleFile"
+                name="vectorObstacleFile"
+                type="file"
+                accept=".zip,.geojson,.json,.kml,.gpkg"
+                class="sr-only"
+              />
+            </div>
+          </div>
+
+          <div id="rasterImpassableFields" hidden class="space-y-3">
+            <div class="input-row grid items-start gap-x-3 gap-y-1 sm:grid-cols-[112px_minmax(0,1fr)]">
+              <label class="text-sm font-semibold text-[#1f2a1d] md:text-right" for="rasterObstacleValues">Impassable values</label>
+              <input id="rasterObstacleValues" name="rasterObstacleValues" type="text" placeholder="e.g. 9 or 9,10" class="h-8 w-full rounded-xl border border-black/10 px-3 text-sm" />
+              <p
+                class="field-note text-xs text-[#7a7a60]"
+                data-tooltip="Values listed here are blocked from corridors.&#10; Corridors must not be built through these cells and will navigate around them.&#10; Use for water, urban, or barriers."
+              >
+                Cells corridors must avoid.
+              </p>
+            </div>
+          </div>
+        </section>
+        </div>
+
+        <button
+          id="runButton"
+          type="submit"
+          class="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#c39a3a] px-6 py-3 text-sm font-semibold text-[#1f2a1d] hover:bg-[#b58c31]"
+        >
+          Run TerraLink
+        </button>
+        <p class="mt-4 text-xs text-[#7a7a60]">This is a synchronous run. Large jobs may take several minutes.</p>
+        <p class="mt-2 text-xs text-[#7a7a60]">
+          TerraLink is available on the QGIS Plug-in Repository.
+          <a
+            class="ml-1 font-semibold text-[#1f2a1d] underline-offset-4 hover:underline"
+            href="https://github.com/sorus-tools/TerraLink"
+            target="_blank"
+            rel="noopener"
+          >
+            View the GitHub repository
+          </a>
+          .
+        </p>
+        <p class="mt-2 text-xs text-[#7a7a60]">
+          Use the native R package through its
+          <a
+            class="font-semibold text-[#1f2a1d] underline-offset-4 hover:underline"
+            href="https://github.com/sorus-tools/terralink-r"
+            target="_blank"
+            rel="noopener"
+          >
+            R project
+          </a>
+          .
+        </p>
+        <p class="mt-2 text-xs text-[#7a7a60]">
+          Questions? Email the creator at
+          <a class="ml-1 font-semibold text-[#1f2a1d] underline-offset-4 hover:underline" href="mailto:benjamin.bishop@sorusconsultingllc.com">
+            benjamin.bishop@sorusconsultingllc.com
+          </a>
+          .
+        </p>
+        <p class="mt-3 text-[10px] uppercase tracking-[0.08em] text-[#9a9a86]">TERRALINK STANDALONE ENGINE PREVIEW 0.1.0a1</p>
+      </form>
+
+      <div class="min-w-0 flex flex-col gap-4">
+        <div class="rounded-3xl border border-black/10 bg-white p-4 shadow-sm lg:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="text-xs font-semibold uppercase tracking-[0.35em] text-[#7a7a60]">Map view</div>
+            <div class="text-xs text-[#7a7a60]">Preview and output layers</div>
+          </div>
+          <div id="map" class="mt-4 h-[420px] w-full overflow-hidden rounded-2xl border border-black/10 lg:h-[570px]"></div>
+          <div class="mt-3 flex flex-wrap gap-4 text-xs text-[#4a5546]">
+            <label class="inline-flex items-center gap-2">
+              <input id="toggleBasemap" type="checkbox" checked class="h-4 w-4 rounded border border-black/20" />
+              <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full border border-black/30 bg-white"></span>Basemap</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="toggleInput" type="checkbox" checked class="h-4 w-4 rounded border border-black/20" />
+              <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full border border-black/30 bg-white"></span>Input</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="toggleContigs" type="checkbox" class="h-4 w-4 rounded border border-black/20" />
+              <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-[#2f7a2f]"></span>Contiguous areas</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="toggleCorridors" type="checkbox" checked class="h-4 w-4 rounded border border-black/20" />
+              <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-[#39ff14]"></span>Corridors</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input id="toggleObstacles" type="checkbox" checked class="h-4 w-4 rounded border border-black/20" />
+              <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-[#ff3b30]"></span>Impassables</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="min-w-0 rounded-3xl border border-black/10 bg-white px-5 py-4 shadow-sm">
+          <div class="flex items-center gap-2">
+            <div class="text-xs font-semibold uppercase tracking-[0.35em] text-[#7a7a60]">Run log</div>
+            <span id="runSpinner" class="pixel-tree-spinner" aria-hidden="true"></span>
+          </div>
+          <div id="runLogLine" class="run-log-line mt-2 text-sm text-[#4a5546]">Ready.</div>
+          <div class="run-progress-track mt-3">
+            <div id="runProgress" class="run-progress-fill"></div>
+          </div>
+          <div id="runProgressMeta" class="mt-2 text-[11px] text-[#7a7a60]">Idle (0%)</div>
+          <p class="mt-2 text-[11px] leading-relaxed text-[#7a7a60]">
+            If this run is taking too long, try the R or QGIS version for larger or more detailed analyses.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-[0.35em] text-[#7a7a60]">Results</div>
+          <div id="resultsWrapper" class="results-scroll mt-4 min-h-[160px] text-sm text-[#4a5546]">
+            <p>No outputs yet.</p>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-black/10 bg-[#f7f2e8] px-6 py-5 text-sm text-[#4a5546] shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-[0.3em] text-[#7a7a60]">Release updates</div>
+          <h2 class="mt-3 text-lg font-semibold text-[#1f2a1d]">Get notified of new TerraLink updates</h2>
+          {hasButtondownNewsletter ? (
+            <>
+              <form
+                action={buttondownSubscribeUrl}
+                method="post"
+                target="popupwindow"
+                class="mt-4 flex flex-col gap-3 sm:flex-row"
+                onsubmit="window.open('https://buttondown.com', 'popupwindow')"
+              >
+                <label class="sr-only" for="buttondown-email">Email address</label>
+                <input
+                  id="buttondown-email"
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                  class="min-h-11 min-w-0 flex-1 rounded-full border border-black/10 bg-white px-4 text-sm text-[#1f2a1d] placeholder:text-[#9a9a86]"
+                />
+                <input type="hidden" value="1" name="embed" />
+                <input type="hidden" value="terralink-online" name="metadata__source" />
+                <button
+                  type="submit"
+                  class="inline-flex min-h-11 items-center justify-center rounded-full bg-[#c39a3a] px-5 text-sm font-semibold text-[#1f2a1d] hover:bg-[#b58c31]"
+                >
+                  Notify me
+                </button>
+              </form>
+              <p class="mt-3 text-xs text-[#7a7a60]">Only TerraLink release updates. Unsubscribe anytime.</p>
+            </>
+          ) : (
+            <>
+              <p class="mt-3 text-sm leading-relaxed text-[#4a5546]">
+                Email us to be added to the TerraLink release update list.
+              </p>
+              <a
+                href="mailto:benjamin.bishop@sorusconsultingllc.com?subject=TerraLink%20release%20updates"
+                class="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-[#c39a3a] px-5 text-sm font-semibold text-[#1f2a1d] hover:bg-[#b58c31]"
+              >
+                Request updates
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  .run-progress-track {
+    position: relative;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 999px;
+    border: 1px solid rgba(31, 42, 29, 0.18);
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .run-progress-fill {
+    position: relative;
+    height: 100%;
+    width: 0%;
+    transition: width 360ms ease;
+    background: linear-gradient(90deg, #63aa54 0%, #2f7a2f 100%);
+    border-radius: inherit;
+  }
+
+  .run-log-line {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .pixel-tree-spinner {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    opacity: 0.4;
+    transition: opacity 200ms ease;
+    display: inline-block;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    image-rendering: pixelated;
+  }
+
+  .pixel-tree-spinner::before {
+    content: "";
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    left: 14px;
+    top: 5px;
+    background: #2e7b32;
+    box-shadow:
+      0px 3px 0 #2e7b32,
+      -3px 3px 0 #2e7b32,
+      3px 3px 0 #2e7b32,
+      -6px 6px 0 #2e7b32,
+      -3px 6px 0 #3f9442,
+      0px 6px 0 #3f9442,
+      3px 6px 0 #3f9442,
+      6px 6px 0 #2e7b32,
+      -6px 9px 0 #2e7b32,
+      -3px 9px 0 #3f9442,
+      0px 9px 0 #3f9442,
+      3px 9px 0 #3f9442,
+      6px 9px 0 #2e7b32,
+      -3px 12px 0 #3f9442,
+      0px 12px 0 #3f9442,
+      3px 12px 0 #3f9442,
+      0px 15px 0 #835933,
+      0px 18px 0 #835933;
+  }
+
+  .pixel-tree-spinner.is-spinning {
+    opacity: 1;
+    animation: pixel-tree-spin-y 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pixel-tree-spin-y {
+    0% {
+      transform: rotateY(0deg);
+    }
+    50% {
+      transform: rotateY(180deg);
+    }
+    100% {
+      transform: rotateY(360deg);
+    }
+  }
+
+  .terralink-popup .leaflet-popup-content-wrapper {
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+    padding: 0;
+  }
+
+  .terralink-popup .leaflet-popup-content {
+    margin: 0;
+    width: min(280px, calc(100vw - 104px)) !important;
+    max-height: min(42vh, 320px);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .terralink-popup-card {
+    padding: 12px 14px;
+    color: #1f2a1d;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .terralink-popup-title {
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .terralink-popup-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .terralink-popup-table tr + tr td {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .terralink-popup-key,
+  .terralink-popup-value {
+    padding: 6px 0;
+    vertical-align: top;
+  }
+
+  .terralink-popup-key {
+    width: 40%;
+    padding-right: 12px;
+    color: #1f2a1d;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .terralink-popup-value {
+    color: #4a5546;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .results-scroll {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  .results-preview-panel {
+    overflow: hidden;
+  }
+
+  .results-preview-scroll {
+    max-width: 100%;
+    overflow: auto;
+  }
+
+  .results-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .results-data-table th,
+  .results-data-table td {
+    padding: 8px 0;
+    vertical-align: top;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .results-data-table thead th {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .results-data-label {
+    width: 38%;
+    padding-right: 16px;
+    color: #1f2a1d;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .results-data-value {
+    color: #4a5546;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .results-data-value--path {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+  }
+
+  .results-metrics-table {
+    width: max-content;
+    min-width: 560px;
+    table-layout: auto;
+  }
+
+  .results-metrics-table th,
+  .results-metrics-table td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .results-metrics-table .results-data-label {
+    width: auto;
+    max-width: 220px;
+    padding-right: 6px;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .results-metrics-table .results-data-value {
+    padding-right: 6px;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 640px) {
+    .input-row .field-note {
+      grid-column: 1 / -1;
+      max-width: none;
+      line-height: 1.35;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .input-row {
+      grid-template-columns: 112px minmax(0, 1fr) !important;
+      align-items: start;
+      column-gap: 14px;
+      row-gap: 6px;
+    }
+
+    .input-row > label:first-child,
+    .input-row > span.text-sm:first-child {
+      padding-top: 8px;
+    }
+
+    .compact-grid {
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #map {
+      height: 480px;
+    }
+
+    .results-data-label {
+      width: 44%;
+    }
+  }
+
+  .field-note {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+  }
+
+  .field-note::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 6px;
+    width: 240px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    color: #1f2a1d;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre-line;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .field-note:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<script is:inline define:vars={{ runnerUrl }}>
+  const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+  const apiBase = (runnerUrl || "").replace(/\/$/, "");
+  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  const form = document.getElementById("terralink-form");
+  const VECTOR_ACCEPT = ".zip,.geojson,.json,.kml,.gpkg";
+  const RASTER_ACCEPT = ".tif,.tiff";
+  const runLogLine = document.getElementById("runLogLine");
+  const resultsWrapper = document.getElementById("resultsWrapper");
+  const runButton = document.getElementById("runButton");
+  const layerType = document.getElementById("layerType");
+  const strategySelect = document.getElementById("strategy");
+  const vectorOptions = document.getElementById("vectorOptions");
+  const rasterFields = document.getElementById("rasterFields");
+  const rasterImpassableFields = document.getElementById("rasterImpassableFields");
+  const fileHelp = document.getElementById("fileHelp");
+  const fileInput = document.getElementById("inputFile");
+  const fileName = document.getElementById("fileName");
+  const vectorObstacleFile = document.getElementById("vectorObstacleFile");
+  const vectorObstacleFileName = document.getElementById("vectorObstacleFileName");
+  const runProgress = document.getElementById("runProgress");
+  const runProgressMeta = document.getElementById("runProgressMeta");
+  const runSpinner = document.getElementById("runSpinner");
+  const mapElement = document.getElementById("map");
+  let mapInstance = null;
+  let basemapLayer = null;
+  let previewLayers = [];
+  let layerRegistry = { input: null, contiguous: null, corridors: null, obstacles: null };
+  let lastRunParams = null;
+  let lastRunStats = null;
+  let previewRequestId = 0;
+  const rasterExts = new Set(["tif", "tiff"]);
+  const toggleBasemap = document.getElementById("toggleBasemap");
+  const toggleInput = document.getElementById("toggleInput");
+  const toggleContigs = document.getElementById("toggleContigs");
+  const toggleCorridors = document.getElementById("toggleCorridors");
+  const toggleObstacles = document.getElementById("toggleObstacles");
+  const budgetUnit = document.getElementById("budgetUnit");
+  const minWidthUnit = document.getElementById("minWidthUnit");
+  const minPatchUnit = document.getElementById("minPatchUnit");
+  const maxSearchUnit = document.getElementById("maxSearchUnit");
+  let previewDebounce = null;
+  let runProgressTimer = null;
+  let runProgressValue = 0;
+
+  async function loadScript(urls) {
+    const list = Array.isArray(urls) ? urls : [urls];
+    let lastError = null;
+    for (const url of list) {
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = url;
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error(`Failed to load ${url}`));
+          document.head.appendChild(script);
+        });
+        return;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error("Failed to load script.");
+  }
+
+  async function ensureMap(needsRaster = false) {
+    if (mapInstance || !mapElement) return mapInstance;
+    if (!window.L) {
+      await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+    }
+    if (needsRaster) {
+      // Raster previews are now drawn as footprints (GeoJSON), so no raster libs required.
+    }
+
+    mapInstance = window.L.map(mapElement).setView([15, 0], 1.5);
+    basemapLayer = window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      subdomains: ["a", "b", "c"],
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(mapInstance);
+    setTimeout(() => mapInstance.invalidateSize(), 50);
+    window.addEventListener("resize", () => {
+      if (mapInstance) {
+        mapInstance.invalidateSize();
+      }
+    });
+    mapInstance.on("popupopen", (evt) => {
+      const popupElement = evt.popup?.getElement?.();
+      const popupContent = popupElement?.querySelector?.(".leaflet-popup-content");
+      if (!popupContent) return;
+
+      const disableZoom = () => {
+        mapInstance?.scrollWheelZoom?.disable();
+      };
+      const enableZoom = () => {
+        mapInstance?.scrollWheelZoom?.enable();
+      };
+      const stopWheelPropagation = (wheelEvent) => {
+        wheelEvent.stopPropagation();
+      };
+
+      popupContent.addEventListener("mouseenter", disableZoom);
+      popupContent.addEventListener("mouseleave", enableZoom);
+      popupContent.addEventListener("wheel", stopWheelPropagation, { passive: true });
+      window.L.DomEvent.disableScrollPropagation(popupContent);
+
+      evt.popup.__terralinkCleanup = () => {
+        popupContent.removeEventListener("mouseenter", disableZoom);
+        popupContent.removeEventListener("mouseleave", enableZoom);
+        popupContent.removeEventListener("wheel", stopWheelPropagation);
+        enableZoom();
+      };
+    });
+    mapInstance.on("popupclose", (evt) => {
+      const popup = evt.popup;
+      popup?.__terralinkCleanup?.();
+      if (popup && Object.prototype.hasOwnProperty.call(popup, "__terralinkCleanup")) {
+        delete popup.__terralinkCleanup;
+      }
+      mapInstance?.scrollWheelZoom?.enable();
+    });
+    return mapInstance;
+  }
+
+  function clearPreviews() {
+    if (!mapInstance) return;
+    previewLayers.forEach((layer) => mapInstance.removeLayer(layer));
+    previewLayers = [];
+    layerRegistry = { input: null, contiguous: null, corridors: null, obstacles: null };
+  }
+
+  function formatKey(key) {
+    return escapeHtml(key)
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  function formatValue(value) {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "number") {
+      return Number.isInteger(value) ? value.toString() : value.toFixed(3);
+    }
+    return escapeHtml(value);
+  }
+
+  function colorForValue(value) {
+    const key = String(value ?? "");
+    let hash = 0;
+    for (let i = 0; i < key.length; i += 1) {
+      hash = (hash << 5) - hash + key.charCodeAt(i);
+      hash |= 0;
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue} 55% 45%)`;
+  }
+
+  function emptyPreviewMessage(label, key) {
+    const mode = lastRunParams?.layer_type || layerType?.value || "vector";
+    const layerName = label || "Preview layer";
+    if (key === "corridors") {
+      const budgetSummary = buildBudgetSummary(lastRunStats || {}, lastRunParams || {});
+      const maxSearch =
+        lastRunParams?.max_search_distance ??
+        lastRunParams?.raster_max_search ??
+        document.getElementById("maxSearch")?.value ??
+        "";
+      const minWidth =
+        lastRunParams?.min_corridor_width ??
+        lastRunParams?.raster_min_width ??
+        document.getElementById("minWidth")?.value ??
+        "";
+      const parts = [
+        "No corridors were selected for this run, so there are no corridor features to preview.",
+      ];
+      if (budgetSummary) parts.push(budgetSummary);
+      parts.push(
+        "This usually means the current budget, search radius, corridor width, patch threshold, or impassable settings left no affordable corridor candidates."
+      );
+      if (maxSearch !== "") parts.push(`Current search radius: ${maxSearch}.`);
+      if (minWidth !== "") parts.push(`Current corridor width: ${minWidth}.`);
+      parts.push("The uploaded file can still be valid.");
+      return parts.join(" ");
+    }
+    if (key === "contiguous") {
+      return [
+        `${layerName} preview produced no map features.`,
+        "The run completed, but no connected patch-plus-corridor network layer was available to draw.",
+        "If no corridors were selected, try increasing budget or search radius, reducing corridor width, lowering the minimum patch size, or relaxing impassable settings.",
+      ].join(" ");
+    }
+    if (mode === "raster") {
+      const patchValues = (
+        lastRunParams?.raster_patch_values ||
+        document.getElementById("rasterPatchValues")?.value ||
+        ""
+      ).trim();
+      const obstacleValues = (
+        lastRunParams?.raster_obstacle_values ||
+        document.getElementById("rasterObstacleValues")?.value ||
+        ""
+      ).trim();
+      const minPatch =
+        lastRunParams?.raster_min_patch_size ??
+        document.getElementById("minPatch")?.value ??
+        0;
+      const parts = [`${layerName} preview produced no map features.`];
+      if (patchValues) {
+        parts.push(`Check that patch value(s) "${patchValues}" exist in the raster.`);
+      } else {
+        parts.push(
+          "No patch values are set for preview; if no classes appear, the raster may be empty, nodata-only, or missing georeferencing."
+        );
+      }
+      parts.push(`Check that min patch size (${minPatch || 0}) is not filtering every patch.`);
+      if (obstacleValues) {
+        parts.push(`Check that impassable value(s) "${obstacleValues}" are not removing all cells.`);
+      }
+      parts.push("Confirm the GeoTIFF has a CRS/geotransform and non-nodata cells.");
+      return parts.join(" ");
+    }
+    return [
+      `${layerName} preview produced no map features.`,
+      "Check that the uploaded vector file contains polygon features, not only lines/points or an empty layer.",
+      "For zipped shapefiles, confirm the ZIP includes .shp, .shx, .dbf, and .prj together.",
+      "Check that geometries are valid and that the file CRS is defined.",
+    ].join(" ");
+  }
+
+  async function addVectorLayer(url, style, label, note, key) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to load preview (${response.status}).`);
+    }
+    const text = await response.text();
+    if (!text) {
+      throw new Error("Preview returned empty response.");
+    }
+    let geojson = null;
+    try {
+      geojson = JSON.parse(text);
+    } catch (err) {
+      throw new Error("Preview is not valid GeoJSON.");
+    }
+    const layer = window.L.geoJSON(geojson, {
+      style,
+      onEachFeature: (feature, lyr) => {
+        const props = (feature && feature.properties) ? feature.properties : {};
+        const entries = Object.entries(props).filter(([, v]) => v !== null && v !== undefined && v !== "");
+        const rows = entries.map(([key, value]) => {
+          return `<tr><td class="terralink-popup-key">${formatKey(key)}</td><td class="terralink-popup-value">${formatValue(value)}</td></tr>`;
+        });
+        if (note) {
+          rows.push(`<tr><td class="terralink-popup-key">Note</td><td class="terralink-popup-value">${note}</td></tr>`);
+        }
+        if (!rows.length) {
+          rows.push(`<tr><td class="terralink-popup-value" colspan="2">No attributes</td></tr>`);
+        }
+        const title = label ? `<div class="terralink-popup-title">${label}</div>` : "";
+        lyr.bindPopup(
+          `<div class="terralink-popup-card">${title}<table class="terralink-popup-table">${rows.join("")}</table></div>`,
+          {
+            className: "terralink-popup",
+            maxWidth: 300,
+            minWidth: 210,
+            autoPan: false,
+            keepInView: false,
+            closeButton: false,
+            autoClose: true,
+            closeOnEscapeKey: true,
+          }
+        );
+        lyr.on("mouseover", (evt) => {
+          evt.target.openPopup();
+        });
+        lyr.on("mouseout", (evt) => {
+          evt.target.closePopup();
+        });
+      },
+    });
+    if (layer.getLayers && layer.getLayers().length === 0) {
+      const message = emptyPreviewMessage(label, key);
+      if (key === "corridors" || key === "contiguous") {
+        setLogLine(message, true);
+        return null;
+      }
+      throw new Error(message);
+    }
+    layer.addTo(mapInstance);
+    previewLayers.push(layer);
+    if (key) {
+      layerRegistry[key] = layer;
+      if (key === "input" && toggleInput && !toggleInput.checked) {
+        mapInstance.removeLayer(layer);
+      }
+      if (key === "contiguous" && toggleContigs && !toggleContigs.checked) {
+        mapInstance.removeLayer(layer);
+      }
+      if (key === "corridors" && toggleCorridors && !toggleCorridors.checked) {
+        mapInstance.removeLayer(layer);
+      }
+      if (key === "obstacles" && toggleObstacles && !toggleObstacles.checked) {
+        mapInstance.removeLayer(layer);
+      }
+    }
+    return layer;
+  }
+
+  async function renderPreviews(previews) {
+    if (!previews || Object.keys(previews).length === 0) return;
+    const needsRaster =
+      previews.input?.type === "raster" ||
+      previews.contiguous?.type === "raster" ||
+      previews.corridors?.type === "raster" ||
+      previews.obstacles?.type === "raster";
+    await ensureMap(needsRaster);
+    clearPreviews();
+
+    const layers = [];
+    if (previews.input) {
+      const isRaster = lastRunParams?.layer_type === "raster";
+      const hasPatchValues = Boolean(lastRunParams?.raster_patch_values);
+      const note = isRaster
+        ? (hasPatchValues
+          ? `Patch mask (values: ${lastRunParams.raster_patch_values})`
+          : "Raster classes (unique values)")
+        : "";
+      const style =
+        isRaster && !hasPatchValues
+          ? (feature) => {
+              const color = colorForValue(feature?.properties?.value);
+              return { color, weight: 1, fillOpacity: 0.55, fillColor: color };
+            }
+          : { color: "#ffffff", weight: 2.5, opacity: 0.95, fillOpacity: 0.08, fillColor: "#ffffff" };
+      layers.push(
+        await addVectorLayer(
+          previews.input.url,
+          style,
+          "Input",
+          note,
+          "input"
+        )
+      );
+    }
+    if (previews.contiguous) {
+      const note = lastRunParams?.layer_type === "raster"
+        ? "Value = connected area (pixel count)."
+        : "";
+      layers.push(
+        await addVectorLayer(
+          previews.contiguous.url,
+          { color: "#2f7a2f", weight: 2, fillOpacity: 0.2 },
+          "Contiguous areas",
+          note,
+          "contiguous"
+        )
+      );
+    }
+    if (previews.obstacles) {
+      const note = lastRunParams?.layer_type === "raster"
+        ? `Impassable raster values (${lastRunParams?.raster_obstacle_values || "selected classes"}).`
+        : "Uploaded vector obstacle layer.";
+      layers.push(
+        await addVectorLayer(
+          previews.obstacles.url,
+          { color: "#ff3b30", weight: 2.5, opacity: 0.95, fillOpacity: 0.28, fillColor: "#ff3b30" },
+          "Impassables",
+          note,
+          "obstacles"
+        )
+      );
+    }
+    if (previews.corridors) {
+      const note = lastRunParams?.layer_type === "raster"
+        ? "Value = connected area (pixel count) for each corridor cell."
+        : "";
+      layers.push(
+        await addVectorLayer(
+          previews.corridors.url,
+          { color: "#39ff14", weight: 3, opacity: 1, fillOpacity: 0.35, fillColor: "#39ff14" },
+          "Corridors",
+          note,
+          "corridors"
+        )
+      );
+    }
+
+    const bounds = layers.reduce((acc, layer) => {
+      if (!layer) return acc;
+      const layerBounds = layer.getBounds ? layer.getBounds() : null;
+      if (!layerBounds) return acc;
+      return acc ? acc.extend(layerBounds) : layerBounds;
+    }, null);
+    if (bounds) {
+      mapInstance.fitBounds(bounds.pad(0.1));
+    }
+    setTimeout(() => mapInstance.invalidateSize(), 50);
+  }
+
+  if (!apiBase) {
+    runLogLine.textContent = "Runner URL not configured. Set PUBLIC_TERRALINK_RUNNER_URL.";
+    runButton.disabled = true;
+    runButton.classList.add("opacity-50", "cursor-not-allowed");
+  }
+
+  function setLogLine(text, isError = false) {
+    if (!runLogLine) return;
+    runLogLine.textContent = text || "";
+    runLogLine.className = isError
+      ? "run-log-line mt-2 text-sm text-red-700"
+      : "run-log-line mt-2 text-sm text-[#4a5546]";
+  }
+
+  function toFiniteNumber(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function firstFiniteNumber(...values) {
+    for (const value of values) {
+      const n = toFiniteNumber(value);
+      if (n !== null) return n;
+    }
+    return null;
+  }
+
+  function formatBudgetNumber(value, unit) {
+    if (value === null) return "";
+    if (unit === "px") {
+      return `${Math.round(value)}`;
+    }
+    const hasDecimals = Math.abs(value - Math.round(value)) > 1e-9;
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: hasDecimals ? 2 : 0,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  function buildBudgetSummary(stats, params) {
+    const mode = params?.layer_type || "vector";
+
+    if (mode === "raster") {
+      const unit =
+        stats?.raster_area_label ||
+        (params?.raster_units === "metric"
+          ? "ha"
+          : params?.raster_units === "imperial"
+            ? "ac"
+            : "px");
+      const used = firstFiniteNumber(stats?.budget_used_display, stats?.budget_used);
+      const total = firstFiniteNumber(
+        stats?.budget_total_display,
+        stats?.budget_total,
+        params?.raster_budget
+      );
+      if (used === null || total === null) return "";
+      return `Budget: ${formatBudgetNumber(used, unit)} / ${formatBudgetNumber(total, unit)} ${unit}.`;
+    }
+
+    const unit =
+      stats?.area_units_label || (params?.unit_system === "imperial" ? "ac" : "ha");
+    const used = firstFiniteNumber(stats?.budget_used_display, stats?.budget_used_ha);
+    const total = firstFiniteNumber(stats?.budget_total_display, params?.budget_area);
+    if (used === null || total === null) return "";
+    return `Budget: ${formatBudgetNumber(used, unit)} / ${formatBudgetNumber(total, unit)} ${unit}.`;
+  }
+
+  function stopRunProgressTimer() {
+    if (!runProgressTimer) return;
+    clearInterval(runProgressTimer);
+    runProgressTimer = null;
+  }
+
+  function applyProgress(value, label = "") {
+    if (!runProgress) return;
+    const clamped = Math.max(0, Math.min(100, value));
+    runProgressValue = clamped;
+    runProgress.style.width = `${clamped}%`;
+    if (runProgressMeta) {
+      runProgressMeta.textContent = label ? `${label} (${Math.round(clamped)}%)` : `${Math.round(clamped)}%`;
+    }
+  }
+
+  function setProgress(state = "idle") {
+    stopRunProgressTimer();
+    const spinActive = state === "upload" || state === "run" || state === "finalize";
+    runSpinner?.classList.toggle("is-spinning", spinActive);
+    if (state === "idle") {
+      applyProgress(0, "Idle");
+      return;
+    }
+    if (state === "upload") {
+      applyProgress(10, "Uploading input");
+      return;
+    }
+    if (state === "run") {
+      const start = Math.max(runProgressValue, 18);
+      applyProgress(start, "Analyzing corridors");
+      runProgressTimer = setInterval(() => {
+        if (runProgressValue >= 99.2) return;
+        let step = 0.9;
+        if (runProgressValue >= 40) step = 0.7;
+        if (runProgressValue >= 60) step = 0.5;
+        if (runProgressValue >= 74) step = 0.3;
+        if (runProgressValue >= 84) step = 0.18;
+        if (runProgressValue >= 90) step = 0.12;
+        if (runProgressValue >= 94) step = 0.08;
+        if (runProgressValue >= 96) step = 0.05;
+        if (runProgressValue >= 98) step = 0.03;
+        applyProgress(runProgressValue + step, "Analyzing corridors");
+      }, 700);
+      return;
+    }
+    if (state === "finalize") {
+      const start = Math.max(runProgressValue, 98.8);
+      applyProgress(start, "Finalizing outputs");
+      runProgressTimer = setInterval(() => {
+        if (runProgressValue >= 99.8) return;
+        applyProgress(runProgressValue + 0.04, "Finalizing outputs");
+      }, 500);
+      return;
+    }
+    if (state === "done") {
+      applyProgress(100, "Complete");
+      return;
+    }
+    if (state === "error") {
+      applyProgress(0, "Run failed");
+      return;
+    }
+  }
+
+  function validateFile(file, mode) {
+    if (!file) return "Please choose a file.";
+    if (file.size > MAX_UPLOAD_BYTES) return "File exceeds 50 MB limit.";
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (mode === "raster" && !rasterExts.has(ext)) {
+      return "Raster mode requires a .tif or .tiff file.";
+    }
+    if (mode === "vector" && rasterExts.has(ext)) {
+      return "Vector mode requires a zipped shapefile, GeoJSON, KML, or GPKG.";
+    }
+    return "";
+  }
+
+  function validateVectorObstacleFile(file) {
+    if (!file) return "";
+    if (file.size > MAX_UPLOAD_BYTES) return "Obstacle file exceeds 50 MB limit.";
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (!["zip", "geojson", "json", "kml", "gpkg"].includes(ext)) {
+      return "Obstacle layer must be a zipped shapefile, GeoJSON, KML, or GPKG.";
+    }
+    return "";
+  }
+
+  function collectParams({ requireRasterPatchValues = true } = {}) {
+    const mode = layerType?.value || "vector";
+    const sharedUnits = document.getElementById("units").value || "metric";
+    const sharedBudget = parseFloat(document.getElementById("budget").value || "0");
+    const sharedMinWidth = parseFloat(document.getElementById("minWidth").value || "0");
+    const sharedMinPatch = parseFloat(document.getElementById("minPatch").value || "0");
+    const sharedMaxSearch = parseFloat(document.getElementById("maxSearch").value || "0");
+    const params = { layer_type: mode };
+    params.strategy = document.getElementById("strategy").value;
+    if (mode === "vector") {
+      params.budget_area = sharedBudget;
+      params.min_corridor_width = sharedMinWidth;
+      params.min_patch_size = sharedMinPatch;
+      params.max_search_distance = sharedMaxSearch;
+      params.unit_system = sharedUnits === "pixels" ? "metric" : sharedUnits;
+      params.grid_resolution = 50;
+    } else {
+      const patchValues = document.getElementById("rasterPatchValues").value.trim();
+      if (requireRasterPatchValues && !patchValues) {
+        return { error: "Enter at least one patch value for raster mode." };
+      }
+      if (patchValues) {
+        params.raster_patch_values = patchValues;
+      }
+      params.raster_obstacle_values = document.getElementById("rasterObstacleValues").value.trim();
+      params.raster_allow_bottlenecks = true;
+      params.raster_patch_connectivity = parseInt(document.getElementById("rasterNeighborhood").value || "8", 10);
+      params.raster_units = sharedUnits;
+      params.raster_min_patch_size = sharedMinPatch;
+      params.raster_budget = sharedBudget;
+      params.raster_max_search = sharedMaxSearch;
+      params.raster_min_width = sharedMinWidth;
+    }
+    params.species_dispersal_distance_analysis = 1000.0;
+    params.species_dispersal_kernel = "exponential";
+    params.species_min_patch_area = 0.0;
+    params.patch_area_scaling = "sqrt";
+    params.pc_alpha_analysis = 1000.0;
+    params.pc_cutoff_analysis = 3000.0;
+    params.redundancy_method = "ime";
+    params.sample_points = 50;
+    params.pair_samples = 200;
+    params.resiliency_shortcut_threshold = 3.0;
+    return { params };
+  }
+
+  function setResults(outputs) {
+    if (!outputs || outputs.length === 0) {
+      resultsWrapper.innerHTML = "<p>No outputs yet.</p>";
+      return;
+    }
+
+    const cleaned = outputs.filter((output) => {
+      const name = (output.filename || "").toLowerCase();
+      return !name.includes("run_log");
+    });
+
+    const ranked = cleaned.slice().sort((a, b) => {
+      const rank = (item) => {
+        const name = (item.filename || "").toLowerCase();
+        if (name.startsWith("corridors_") && (name.endsWith(".tif") || name.endsWith(".tiff"))) return 0;
+        if (name.includes("contiguous") && (name.endsWith(".tif") || name.endsWith(".tiff"))) return 1;
+        if (name.endsWith(".gpkg")) return 2;
+        if (name.includes("summary") && name.endsWith(".csv")) return 3;
+        if (name.includes("landscape") && name.endsWith(".txt")) return 4;
+        return 5;
+      };
+      const ra = rank(a);
+      const rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      return (a.filename || "").localeCompare(b.filename || "");
+    });
+
+    const items = ranked
+      .map((output, index) => {
+        const escapeHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[c]));
+        const safeLabel = escapeHtml(output.label || output.filename || "Output");
+        const filename = output.filename || "";
+        const lower = filename.toLowerCase();
+        let viewType = "";
+        if (lower.includes("landscape_metrics") && lower.endsWith(".txt")) {
+          viewType = "metrics";
+        } else if (lower.includes("summary") && lower.endsWith(".csv")) {
+          viewType = "csv";
+        }
+        const viewButton = viewType
+          ? `<button class=\"view-output rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-[#1f2a1d] hover:bg-black/[0.04]\" data-url=\"${output.url}\" data-kind=\"${viewType}\" data-target=\"output-preview-${index}\">View</button>`
+          : "";
+        return `
+          <li class="rounded-2xl border border-black/10 bg-white/70 px-4 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <a class="text-sm font-semibold text-[#1f2a1d] underline-offset-4 hover:underline" href="${output.url}" target="_blank" rel="noopener">
+                ${safeLabel}
+              </a>
+              <div class="flex items-center gap-2">
+                ${viewButton}
+                <a class="rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-[#1f2a1d] hover:bg-black/[0.04]" href="${output.url}" target="_blank" rel="noopener">Download</a>
+              </div>
+            </div>
+            <div id="output-preview-${index}" class="results-preview-panel mt-3 hidden rounded-xl border border-black/10 bg-white px-3 py-3 text-xs text-[#4a5546]"></div>
+          </li>
+        `;
+      })
+      .join("");
+    resultsWrapper.innerHTML = `<ul class="space-y-3">${items}</ul>`;
+
+    resultsWrapper.querySelectorAll(".view-output").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const targetId = button.getAttribute("data-target");
+        const url = button.getAttribute("data-url");
+        const kind = button.getAttribute("data-kind");
+        const preview = document.getElementById(targetId);
+        if (!preview || !url) return;
+        if (!preview.classList.contains("hidden")) {
+          preview.classList.add("hidden");
+          return;
+        }
+        preview.classList.remove("hidden");
+        preview.textContent = "Loading...";
+        try {
+          const resp = await fetch(url);
+          const text = await resp.text();
+          if (kind === "csv") {
+            const lines = text.trim().split("\n");
+            const rows = lines.map((line) => line.split(","));
+            const wrapper = document.createElement("div");
+            wrapper.className = "results-preview-scroll";
+            const table = document.createElement("table");
+            table.className = "results-data-table text-left text-xs";
+            rows.forEach((row, idx) => {
+              if (!row.length) return;
+              const first = (row[0] || "").trim().toLowerCase();
+              const second = (row[1] || "").trim().toLowerCase();
+              if (idx === 0 && first === "label" && second === "value") {
+                return;
+              }
+              const tr = document.createElement("tr");
+              const labelCell = document.createElement("td");
+              const valueCell = document.createElement("td");
+              const labelText = (row[0] || "").trim();
+              const valueText = (row[1] || "").trim();
+
+              labelCell.textContent = labelText;
+              labelCell.className = "results-data-label";
+
+              const isPath = /output|landscape|path/i.test(labelText);
+              valueCell.textContent = valueText;
+              valueCell.className = isPath
+                ? "results-data-value results-data-value--path"
+                : "results-data-value";
+              if (isPath && valueText) {
+                valueCell.title = valueText;
+              }
+
+              tr.appendChild(labelCell);
+              tr.appendChild(valueCell);
+              table.appendChild(tr);
+            });
+            preview.innerHTML = "";
+            wrapper.appendChild(table);
+            preview.appendChild(wrapper);
+          } else if (kind === "metrics") {
+            const lines = text.split("\n");
+            const notes = [];
+            const metrics = [];
+            let inTable = false;
+            const normalizeMetricName = (value) =>
+              String(value || "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, " ")
+                .trim();
+            const isNumericLike = (value) => /^[-+]?[\d,]*\.?\d+(%|e[-+]?\d+)?$/i.test((value || "").trim());
+            const isPlaceholder = (value) => {
+              const lower = String(value || "").trim().toLowerCase();
+              return !lower || lower === "n/a" || lower === "na" || lower === "null";
+            };
+            const pickDescriptionFromParts = (parts) => {
+              const candidates = parts.slice(3).map((p) => p.trim());
+              for (const candidate of candidates) {
+                if (isPlaceholder(candidate) || isNumericLike(candidate)) continue;
+                if (/[a-z]/i.test(candidate)) return candidate;
+              }
+              return "";
+            };
+            lines.forEach((line) => {
+              if (line.includes("METRIC NAME")) {
+                inTable = true;
+                return;
+              }
+              if (!inTable) {
+                if (line.trim().startsWith("Note:")) {
+                  notes.push(line.trim());
+                }
+                return;
+              }
+              if (!line.includes("|")) return;
+              const parts = line.split("|").map((p) => p.trim());
+              if (parts.length >= 3) {
+                const description = pickDescriptionFromParts(parts)
+                  .replace(/\(effect.*$/i, "")
+                  .replace(/\(exclu.*$/i, "")
+                  .trim();
+                metrics.push({
+                  name: parts[0],
+                  className: parts[1],
+                  value: parts[2],
+                  description,
+                });
+              }
+            });
+
+            const pickUnit = (value, candidates) => {
+              if (!value) return null;
+              const lower = value.toLowerCase();
+              return candidates.find((token) => lower.includes(token)) || null;
+            };
+            const areaUnit =
+              pickUnit(metrics.find((m) => m.name === "Total Area")?.description, ["ha", "ac", "pixels"]) ||
+              pickUnit(metrics.find((m) => m.name === "Eff. Mesh Size")?.description, ["ha", "ac", "pixels"]) ||
+              "ha";
+            const distUnit =
+              pickUnit(metrics.find((m) => m.name === "Total Edge")?.description, ["km", "ft", "m", "pixels"]) ||
+              "km";
+            const gyrateUnit =
+              pickUnit(metrics.find((m) => m.name === "Mean Radius of Gyration")?.description, ["m", "ft", "pixels"]) ||
+              distUnit;
+
+            const metricInfo = {
+              "Total Area": {
+                desc: "Total habitat area in the landscape.",
+                units: areaUnit,
+              },
+              "Num. Patches (NP)": {
+                desc: "Number of habitat patches.",
+                units: "count",
+              },
+              "Eff. Mesh Size": {
+                desc: "Effective connected habitat size across the landscape.",
+                units: areaUnit,
+              },
+              "Largest Patch Size": {
+                desc: "Area of the single largest patch.",
+                units: areaUnit,
+              },
+              "Splitting Index": {
+                desc: "Fragmentation index (higher means more fragmented).",
+                units: "unitless",
+              },
+              "Patch Density (PD)": {
+                desc: "Patch density standardized to 100 units of area.",
+                units: `patches per 100 ${areaUnit}`,
+              },
+              "Largest Patch Index (LPI)": {
+                desc: "Percent of landscape contained in the largest patch.",
+                units: "% of landscape",
+              },
+              "Total Edge": {
+                desc: "Total edge length across all patches.",
+                units: distUnit,
+              },
+              "Mean Shape Index (MSI)": {
+                desc: "Average patch shape complexity (1 is most compact).",
+                units: "unitless",
+              },
+              "Edge Density (ED)": {
+                desc: "Total edge length per unit area.",
+                units: `${distUnit} per ${areaUnit}`,
+              },
+              "Mean PARA": {
+                desc: "Average perimeter-area ratio of patches.",
+                units: "ratio",
+              },
+              "Fractal Dimension": {
+                desc: "Complexity of patch shapes.",
+                units: "unitless",
+              },
+              "Aggregation Index (AI)": {
+                desc: "Clustering of habitat cells (higher is more clumped).",
+                units: "% of landscape",
+              },
+              "Core Area Index (CAI)": {
+                desc: "Percent of habitat that is core area (excluding edges).",
+                units: "% of habitat",
+              },
+              "Mean Radius of Gyration": {
+                desc: "Average internal reach of patches.",
+                units: gyrateUnit,
+              },
+              "Total Connected Habitat Area": {
+                desc: "Habitat area connected into multi-patch networks.",
+                units: areaUnit,
+              },
+              "Largest Network Area": {
+                desc: "Habitat area in the largest connected network.",
+                units: areaUnit,
+              },
+              "Probability of Connectivity": {
+                desc: "Functionally connected habitat area based on patch area and distance-decayed connectivity.",
+                units: "unitless (0-1)",
+              },
+              "Mean Effective Resistance": {
+                desc: "Average difficulty of movement across the network (lower is better connected).",
+                units: "resistance units",
+              },
+            };
+            const metricInfoAliases = {
+              [normalizeMetricName("Total Connected Habitat Area")]: metricInfo["Total Connected Habitat Area"],
+              [normalizeMetricName("Largest Network Area")]: metricInfo["Largest Network Area"],
+              [normalizeMetricName("Probability of Connectivity")]: metricInfo["Probability of Connectivity"],
+              [normalizeMetricName("Mean Effective Resistance")]: metricInfo["Mean Effective Resistance"],
+              [normalizeMetricName("Total Area")]: metricInfo["Total Area"],
+              [normalizeMetricName("Num. Patches (NP)")]: metricInfo["Num. Patches (NP)"],
+              [normalizeMetricName("Eff. Mesh Size")]: metricInfo["Eff. Mesh Size"],
+              [normalizeMetricName("Largest Patch Size")]: metricInfo["Largest Patch Size"],
+              [normalizeMetricName("Splitting Index")]: metricInfo["Splitting Index"],
+              [normalizeMetricName("Patch Density (PD)")]: metricInfo["Patch Density (PD)"],
+              [normalizeMetricName("Largest Patch Index (LPI)")]: metricInfo["Largest Patch Index (LPI)"],
+              [normalizeMetricName("Total Edge")]: metricInfo["Total Edge"],
+              [normalizeMetricName("Mean Shape Index (MSI)")]: metricInfo["Mean Shape Index (MSI)"],
+              [normalizeMetricName("Edge Density (ED)")]: metricInfo["Edge Density (ED)"],
+              [normalizeMetricName("Mean PARA")]: metricInfo["Mean PARA"],
+              [normalizeMetricName("Fractal Dimension")]: metricInfo["Fractal Dimension"],
+              [normalizeMetricName("Aggregation Index (AI)")]: metricInfo["Aggregation Index (AI)"],
+              [normalizeMetricName("Core Area Index (CAI)")]: metricInfo["Core Area Index (CAI)"],
+              [normalizeMetricName("Mean Radius of Gyration")]: metricInfo["Mean Radius of Gyration"],
+            };
+
+            const wrapper = document.createElement("div");
+            if (notes.length) {
+              const noteBlock = document.createElement("div");
+              noteBlock.className = "mb-2 text-xs text-[#7a7a60]";
+              noteBlock.textContent = notes.join(" ");
+              wrapper.appendChild(noteBlock);
+            }
+
+            const scroll = document.createElement("div");
+            scroll.className = "results-preview-scroll";
+            const table = document.createElement("table");
+            table.className = "results-data-table results-metrics-table text-left text-xs";
+
+            const thead = document.createElement("thead");
+            thead.innerHTML = `
+              <tr class="text-[#1f2a1d]">
+                <th class="pb-2 pr-1 text-[11px] font-semibold uppercase tracking-[0.2em]">Metric</th>
+                <th class="pb-2 pr-1 text-[11px] font-semibold uppercase tracking-[0.2em]">Pre</th>
+                <th class="pb-2 text-[11px] font-semibold uppercase tracking-[0.2em]">Post</th>
+              </tr>
+            `;
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            metrics.forEach((metric) => {
+              const tr = document.createElement("tr");
+              const nameCell = document.createElement("td");
+              nameCell.textContent = metric.name;
+              nameCell.className = "results-data-label";
+              const normalizedMetricName = normalizeMetricName(metric.name);
+              const info = metricInfo[metric.name] || metricInfoAliases[normalizedMetricName];
+              const tip = info
+                ? `${info.desc} (${info.units})`
+                : metric.description || "Definition from report: see metric context in run output.";
+              nameCell.classList.add("field-note");
+              nameCell.setAttribute("data-tooltip", tip);
+              nameCell.setAttribute("title", tip);
+              const classCell = document.createElement("td");
+              classCell.textContent = metric.className;
+              classCell.className = "results-data-value";
+              const valueCell = document.createElement("td");
+              valueCell.textContent = metric.value;
+              valueCell.className = "results-data-value";
+              tr.appendChild(nameCell);
+              tr.appendChild(classCell);
+              tr.appendChild(valueCell);
+              tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            scroll.appendChild(table);
+            wrapper.appendChild(scroll);
+
+            if (metrics.length) {
+              // Tooltips are attached to metric names, no extra panel required.
+            }
+            preview.innerHTML = "";
+            preview.appendChild(wrapper);
+          } else {
+            preview.textContent = text;
+          }
+        } catch (err) {
+          preview.textContent = "Unable to load preview.";
+        }
+      });
+    });
+  }
+
+  function toggleMode() {
+    const mode = layerType?.value || "vector";
+    const isRaster = mode === "raster";
+    if (vectorOptions) vectorOptions.hidden = isRaster;
+    if (rasterFields) rasterFields.hidden = !isRaster;
+    if (rasterImpassableFields) rasterImpassableFields.hidden = !isRaster;
+    const unitsSelect = document.getElementById("units");
+    const pixelOption = unitsSelect?.querySelector('option[value="pixels"]');
+    if (pixelOption) {
+      pixelOption.hidden = !isRaster;
+      pixelOption.disabled = !isRaster;
+    }
+    if (!isRaster && unitsSelect?.value === "pixels") {
+      unitsSelect.value = "metric";
+    }
+    if (fileInput) {
+      fileInput.accept = isRaster ? RASTER_ACCEPT : VECTOR_ACCEPT;
+    }
+    if (fileHelp) {
+      fileHelp.textContent = isRaster
+        ? "GeoTIFF (max 50 MB)."
+        : "ZIP, KML, GeoJSON, or GPKG (max 50 MB).";
+    }
+    updateUnits();
+    updateStrategyFields();
+  }
+
+  function updateStrategyFields() {}
+
+  function syncObstacleFileLabel() {
+    if (!vectorObstacleFileName) return;
+    const file = vectorObstacleFile?.files?.[0];
+    vectorObstacleFileName.textContent = file ? file.name : "Optional";
+  }
+
+  function updateUnits() {
+    const mode = layerType?.value || "vector";
+    const system = document.getElementById("units")?.value || "metric";
+    const normalizedSystem = mode === "vector" && system === "pixels" ? "metric" : system;
+    let areaUnit = "ha";
+    let distUnit = "m";
+    if (normalizedSystem === "imperial") {
+      areaUnit = "ac";
+      distUnit = "ft";
+    } else if (normalizedSystem === "pixels") {
+      areaUnit = "px";
+      distUnit = "px";
+    }
+    if (budgetUnit) budgetUnit.textContent = areaUnit;
+    if (minPatchUnit) minPatchUnit.textContent = areaUnit;
+    if (minWidthUnit) minWidthUnit.textContent = distUnit;
+    if (maxSearchUnit) maxSearchUnit.textContent = distUnit;
+  }
+
+  layerType?.addEventListener("change", () => {
+    toggleMode();
+    if (fileInput?.files?.length) {
+      handleInputPreview();
+    }
+  });
+  toggleMode();
+  updateUnits();
+  updateStrategyFields();
+  syncObstacleFileLabel();
+  ensureMap().catch(() => {});
+
+  document.getElementById("units")?.addEventListener("change", updateUnits);
+  strategySelect?.addEventListener("change", updateStrategyFields);
+  vectorObstacleFile?.addEventListener("change", () => {
+    syncObstacleFileLabel();
+    if ((layerType?.value || "vector") === "vector" && fileInput?.files?.length) {
+      handleInputPreview();
+    }
+  });
+
+  document.getElementById("rasterPatchValues")?.addEventListener("input", () => {
+    const mode = layerType?.value || "vector";
+    if (mode !== "raster") return;
+    if (!fileInput?.files?.length) return;
+    if (previewDebounce) {
+      clearTimeout(previewDebounce);
+    }
+    previewDebounce = setTimeout(() => {
+      handleInputPreview();
+    }, 250);
+  });
+  document.getElementById("rasterObstacleValues")?.addEventListener("input", () => {
+    const mode = layerType?.value || "vector";
+    if (mode !== "raster") return;
+    if (!fileInput?.files?.length) return;
+    if (previewDebounce) {
+      clearTimeout(previewDebounce);
+    }
+    previewDebounce = setTimeout(() => {
+      handleInputPreview();
+    }, 250);
+  });
+
+  function wireToggle(toggle, key) {
+    toggle?.addEventListener("change", () => {
+      if (!mapInstance) return;
+      const layer = layerRegistry[key];
+      if (!layer) return;
+      if (toggle.checked) {
+        mapInstance.addLayer(layer);
+      } else {
+        mapInstance.removeLayer(layer);
+      }
+    });
+  }
+
+  toggleBasemap?.addEventListener("change", () => {
+    if (!mapInstance || !basemapLayer) return;
+    if (toggleBasemap.checked) {
+      mapInstance.addLayer(basemapLayer);
+    } else {
+      mapInstance.removeLayer(basemapLayer);
+    }
+  });
+
+  wireToggle(toggleInput, "input");
+  wireToggle(toggleContigs, "contiguous");
+  wireToggle(toggleCorridors, "corridors");
+  wireToggle(toggleObstacles, "obstacles");
+
+  async function handleInputPreview() {
+    const file = fileInput?.files?.[0];
+    if (fileName) {
+      fileName.textContent = file ? file.name : "No file selected";
+    }
+    if (!file) {
+      clearPreviews();
+      setLogLine("Ready.");
+      setProgress("idle");
+      return;
+    }
+
+    const mode = layerType?.value || "vector";
+    const validationError = validateFile(file, mode);
+    if (validationError) {
+      clearPreviews();
+      setLogLine(validationError, true);
+      setProgress("idle");
+      return;
+    }
+    const obstacleValidationError = validateVectorObstacleFile(vectorObstacleFile?.files?.[0]);
+    if (mode === "vector" && obstacleValidationError) {
+      clearPreviews();
+      setLogLine(obstacleValidationError, true);
+      setProgress("idle");
+      return;
+    }
+
+    const { params, error } = collectParams({ requireRasterPatchValues: false });
+    if (error) {
+      setLogLine(error, true);
+      setProgress("idle");
+      return;
+    }
+
+    if (!apiBase) {
+      setLogLine("Runner URL not configured. Set PUBLIC_TERRALINK_RUNNER_URL.", true);
+      return;
+    }
+
+    if (toggleInput) toggleInput.checked = true;
+    if (toggleBasemap) toggleBasemap.checked = true;
+    if (toggleObstacles) toggleObstacles.checked = true;
+    previewRequestId += 1;
+    const requestId = previewRequestId;
+    setResults([]);
+    setLogLine("Uploading input preview…");
+    setProgress("upload");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("params", JSON.stringify(params));
+    if (mode === "vector" && vectorObstacleFile?.files?.[0]) {
+      formData.append("obstacle_files", vectorObstacleFile.files[0]);
+    }
+
+    try {
+      const response = await fetch(`${apiBase}/preview`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+      const rawText = await response.text();
+      console.log("TerraLink preview response:", {
+        status: response.status,
+        ok: response.ok,
+        body: rawText,
+      });
+      let data = {};
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch (parseErr) {
+        data = {};
+      }
+      if (!response.ok) {
+        const detail = data.error || rawText || "Preview failed.";
+        throw new Error(detail);
+      }
+      if (requestId !== previewRequestId) return;
+
+      lastRunParams = params;
+      lastRunStats = null;
+      if (data.previews && Object.keys(data.previews).length) {
+        await renderPreviews(data.previews);
+        setLogLine("Input loaded. Ready to run.");
+        setProgress("idle");
+      } else {
+        setLogLine("Input preview unavailable.", true);
+        setProgress("idle");
+      }
+    } catch (err) {
+      if (requestId !== previewRequestId) return;
+      const message = err.message || "Preview failed.";
+      setLogLine(`Preview failed: ${message}`, true);
+      setProgress("idle");
+    }
+  }
+
+  fileInput?.addEventListener("change", handleInputPreview);
+  document.getElementById("loadDemo")?.addEventListener("click", async () => {
+    try {
+      const response = await fetch("/examples/patches.geojson");
+      if (!response.ok) throw new Error("Example dataset unavailable.");
+      const transfer = new DataTransfer();
+      transfer.items.add(new File([await response.blob()], "example-patches.geojson", {type:"application/geo+json"}));
+      fileInput.files = transfer.files;
+      layerType.value = "vector";
+      layerType.dispatchEvent(new Event("change"));
+      document.getElementById("units").value = "metric";
+      document.getElementById("units").dispatchEvent(new Event("change"));
+      for (const [id,value] of Object.entries({minPatch:"0.01",budget:"2",minWidth:"20",maxSearch:"800"})) document.getElementById(id).value=value;
+      if (vectorObstacleFile) vectorObstacleFile.value="";
+      await handleInputPreview();
+    } catch (error) { setLogLine(error.message || "Example could not be loaded.", true); }
+  });
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setResults([]);
+
+    const file = fileInput?.files?.[0];
+    const mode = layerType?.value || "vector";
+    const validationError = validateFile(file, mode);
+    if (validationError) {
+      setLogLine(validationError, true);
+      return;
+    }
+    const obstacleValidationError = validateVectorObstacleFile(vectorObstacleFile?.files?.[0]);
+    if (mode === "vector" && obstacleValidationError) {
+      setLogLine(obstacleValidationError, true);
+      return;
+    }
+
+    const { params, error } = collectParams({ requireRasterPatchValues: true });
+    if (error) {
+      setLogLine(error, true);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("params", JSON.stringify(params));
+    if (mode === "vector" && vectorObstacleFile?.files?.[0]) {
+      formData.append("obstacle_files", vectorObstacleFile.files[0]);
+    }
+
+    runButton.disabled = true;
+    runButton.classList.add("opacity-50", "cursor-not-allowed");
+    setLogLine("Uploading input…");
+    setProgress("upload");
+
+    try {
+      try {
+        const health = await fetch(`${apiBase}/healthz`);
+        if (!health.ok) {
+          throw new Error(`Health check failed (${health.status}).`);
+        }
+      } catch (healthErr) {
+        console.warn("TerraLink health check failed, continuing anyway.", healthErr);
+      }
+
+      setLogLine("Running TerraLink…");
+      setProgress("run");
+      const response = await fetch(`${apiBase}/run`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+      setProgress("finalize");
+
+      let data = {};
+      const rawText = await response.text();
+      console.log("TerraLink run response:", {
+        status: response.status,
+        ok: response.ok,
+        body: rawText,
+      });
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch (parseErr) {
+        data = {};
+      }
+      if (!response.ok) {
+        const detail = data.error || rawText || "Run failed.";
+        throw new Error(detail);
+      }
+
+      const budgetSummary = buildBudgetSummary(data.stats || {}, params);
+      setLogLine(budgetSummary ? `Finished. ${budgetSummary}` : "Finished.");
+      setProgress("done");
+      setResults(data.outputs || []);
+      lastRunParams = params;
+      lastRunStats = data.stats || {};
+      if (data.previews && Object.keys(data.previews).length) {
+        try {
+          await renderPreviews(data.previews);
+        } catch (previewErr) {
+          const previewMessage = previewErr?.message || "Map preview failed.";
+          setLogLine(`Map preview failed: ${previewMessage}`, true);
+        }
+      } else {
+        setLogLine(
+          budgetSummary
+            ? `${budgetSummary} Preview unavailable.`
+            : "No preview data returned.",
+          true
+        );
+      }
+      if (data.preview_errors && data.preview_errors.length) {
+        setLogLine(
+          budgetSummary
+            ? `${budgetSummary} ${data.preview_errors[0]}`
+            : data.preview_errors[0],
+          true
+        );
+      }
+    } catch (err) {
+      const message = err.message || "Run failed.";
+      console.error("TerraLink run error:", err);
+      setLogLine(`Error: ${message}`, true);
+      setProgress("error");
+    } finally {
+      runButton.disabled = false;
+      runButton.classList.remove("opacity-50", "cursor-not-allowed");
+    }
+  });
+</script>

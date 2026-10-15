@@ -1,0 +1,113 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:32631"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "properties": {
+        "patch_id": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500000,
+              5000000
+            ],
+            [
+              500100,
+              5000000
+            ],
+            [
+              500100,
+              5000100
+            ],
+            [
+              500000,
+              5000100
+            ],
+            [
+              500000,
+              5000000
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 2,
+      "properties": {
+        "patch_id": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500300,
+              5000000
+            ],
+            [
+              500400,
+              5000000
+            ],
+            [
+              500400,
+              5000100
+            ],
+            [
+              500300,
+              5000100
+            ],
+            [
+              500300,
+              5000000
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 3,
+      "properties": {
+        "patch_id": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500300,
+              5000300
+            ],
+            [
+              500400,
+              5000300
+            ],
+            [
+              500400,
+              5000400
+            ],
+            [
+              500300,
+              5000400
+            ],
+            [
+              500300,
+              5000300
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

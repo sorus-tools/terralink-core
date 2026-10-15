@@ -1,0 +1,14 @@
+{
+  "mode": "vector",
+  "input": "../conformance/fixtures/patches.geojson",
+  "parameters": {
+    "strategy": "most_connected_networks",
+    "budget_area": 2,
+    "min_patch_size": 0.01,
+    "min_corridor_width": 20,
+    "max_search_distance": 800,
+    "grid_resolution": 10,
+    "units": "metric",
+    "analysis_crs": "EPSG:32631"
+  }
+}

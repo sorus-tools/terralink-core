@@ -1,0 +1,79 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:32631"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "properties": {
+        "patch_id": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500180,
+              4995000
+            ],
+            [
+              500220,
+              4995000
+            ],
+            [
+              500220,
+              5000025
+            ],
+            [
+              500180,
+              5000025
+            ],
+            [
+              500180,
+              4995000
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 2,
+      "properties": {
+        "patch_id": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500180,
+              5000100
+            ],
+            [
+              500220,
+              5000100
+            ],
+            [
+              500220,
+              5005000
+            ],
+            [
+              500180,
+              5005000
+            ],
+            [
+              500180,
+              5000100
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

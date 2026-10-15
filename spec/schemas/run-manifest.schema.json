@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TerraLink run manifest",
+  "type": "object",
+  "required": ["schema_version", "implementation", "implementation_version", "algorithm_profile", "input_mode", "strategy", "configuration", "normalized_parameters", "input_files", "source_crs", "stats", "outputs", "reproducibility", "dependencies", "warnings"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "implementation": {"enum": ["python", "qgis-adapter", "r-native"]},
+    "implementation_version": {"type": "string"},
+    "algorithm_profile": {"type": "string"},
+    "input_mode": {"enum": ["vector", "raster"]},
+    "strategy": {"enum": ["most_connected_networks", "most_connected_networks_2", "largest_single_network", "landscape_fluidity"]},
+    "configuration": {"type": "object"},
+    "normalized_parameters": {"type": "object"},
+    "input_files": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "sha256"], "properties": {"name": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}},
+    "source_crs": {"type": "string"},
+    "stats": {"type": "object"},
+    "outputs": {"type": "object", "required": ["geopackage", "corridor_layer", "network_layer", "metrics_report"]},
+    "reproducibility": {"type": "object", "required": ["seed", "wall_clock_limited_search"]},
+    "dependencies": {"type": "object"},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  }
+}

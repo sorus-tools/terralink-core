@@ -1,0 +1,275 @@
+{
+  "implementation": "r-native",
+  "status": "measured differences; not universal parity",
+  "source": {
+    "parent_revision": "40150e6f99f2ea61cf303cab628f54d4e70a1156",
+    "working_tree_modified": true,
+    "r_sources_sha256": "2e7692f510157644ddb1c8cfaee0303d98d4a94714e7ae42d21efdd83dc9e2af"
+  },
+  "raster_connectivity": 4,
+  "reference_plugin_version": "1.8.3",
+  "comparison_scope": "Selected corridor membership, geometry, and normalized area budget on the bundled fixtures; not every R metric or arbitrary input.",
+  "agreed_cases": 0,
+  "membership_budget_agreed_cases": 10,
+  "total_cases": 16,
+  "cases": [
+    {
+      "case": "gap_landscape_fluidity",
+      "r_corridors": 3,
+      "qgis_corridors": 3,
+      "r_budget_ha": 1.58726147537066,
+      "qgis_budget_ha": 1.5809134361920878,
+      "budget_difference_ha": 0.006348039178572185,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287,
+        270.21348548423197,
+        1505.3189603415901
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": false,
+      "membership_budget_agrees": false,
+      "agrees": false
+    },
+    {
+      "case": "gap_largest_single_network",
+      "r_corridors": 3,
+      "qgis_corridors": 3,
+      "r_budget_ha": 1.58726147537066,
+      "qgis_budget_ha": 1.5809134361920878,
+      "budget_difference_ha": 0.006348039178572185,
+      "matched_geometry_symmetric_difference_m2": [
+        270.21348548423197,
+        8313.65484173287,
+        1505.3189603415901
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": false,
+      "membership_budget_agrees": false,
+      "agrees": false
+    },
+    {
+      "case": "gap_most_connected_networks",
+      "r_corridors": 2,
+      "qgis_corridors": 2,
+      "r_budget_ha": 0.8331275417417597,
+      "qgis_budget_ha": 0.824301593109686,
+      "budget_difference_ha": 0.008825948632073755,
+      "matched_geometry_symmetric_difference_m2": [
+        270.21348548423197,
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": false,
+      "membership_budget_agrees": false,
+      "agrees": false
+    },
+    {
+      "case": "gap_most_connected_networks_2",
+      "r_corridors": 2,
+      "qgis_corridors": 2,
+      "r_budget_ha": 0.8331275417417597,
+      "qgis_budget_ha": 0.824301593109686,
+      "budget_difference_ha": 0.008825948632073755,
+      "matched_geometry_symmetric_difference_m2": [
+        270.21348548423197,
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": false,
+      "membership_budget_agrees": false,
+      "agrees": false
+    },
+    {
+      "case": "plain_landscape_fluidity",
+      "r_corridors": 3,
+      "qgis_corridors": 3,
+      "r_budget_ha": 1.412733652305444,
+      "qgis_budget_ha": 1.4127336523179663,
+      "budget_difference_ha": -1.2522427539352066e-11,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287,
+        3.764534681193393e-05,
+        0.000987966908186801
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "plain_largest_single_network",
+      "r_corridors": 3,
+      "qgis_corridors": 3,
+      "r_budget_ha": 1.412733652305444,
+      "qgis_budget_ha": 1.4127336523179663,
+      "budget_difference_ha": -1.2522427539352066e-11,
+      "matched_geometry_symmetric_difference_m2": [
+        3.764534681193393e-05,
+        8313.65484173287,
+        0.000987966908186801
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "plain_most_connected_networks",
+      "r_corridors": 2,
+      "qgis_corridors": 2,
+      "r_budget_ha": 0.8313654849019123,
+      "qgis_budget_ha": 0.8313654849186539,
+      "budget_difference_ha": -1.6741608099835048e-11,
+      "matched_geometry_symmetric_difference_m2": [
+        3.764534681193393e-05,
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "plain_most_connected_networks_2",
+      "r_corridors": 2,
+      "qgis_corridors": 2,
+      "r_budget_ha": 0.8313654849019123,
+      "qgis_budget_ha": 0.8313654849186539,
+      "budget_difference_ha": -1.6741608099835048e-11,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287,
+        3.764534681193393e-05
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "raster_landscape_fluidity",
+      "r_corridors": 4,
+      "qgis_corridors": 3,
+      "r_budget_ha": 1.978413712265184,
+      "qgis_budget_ha": 1.6302624583227094,
+      "budget_difference_ha": 0.3481512539424745,
+      "matched_geometry_symmetric_difference_m2": [
+        12145.797151484723,
+        6313.65484173287,
+        4.039247192139133e-05
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": false,
+      "membership_budget_agrees": false,
+      "agrees": false
+    },
+    {
+      "case": "raster_largest_single_network",
+      "r_corridors": 4,
+      "qgis_corridors": 3,
+      "r_budget_ha": 1.978413712265184,
+      "qgis_budget_ha": 1.2470482273473171,
+      "budget_difference_ha": 0.7313654849178668,
+      "matched_geometry_symmetric_difference_m2": [
+        6313.65484173287,
+        3.764534681193393e-05,
+        4.039247192139133e-05
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": false,
+      "membership_budget_agrees": false,
+      "agrees": false
+    },
+    {
+      "case": "raster_most_connected_networks",
+      "r_corridors": 2,
+      "qgis_corridors": 2,
+      "r_budget_ha": 0.7313654849060102,
+      "qgis_budget_ha": 0.7313654849031708,
+      "budget_difference_ha": 2.839395385478838e-12,
+      "matched_geometry_symmetric_difference_m2": [
+        6313.65484173287,
+        3.764534681193393e-05
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "raster_most_connected_networks_2",
+      "r_corridors": 2,
+      "qgis_corridors": 2,
+      "r_budget_ha": 0.7313654849060102,
+      "qgis_budget_ha": 0.7313654849031708,
+      "budget_difference_ha": 2.839395385478838e-12,
+      "matched_geometry_symmetric_difference_m2": [
+        6313.65484173287,
+        3.764534681193393e-05
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "sealed_landscape_fluidity",
+      "r_corridors": 1,
+      "qgis_corridors": 1,
+      "r_budget_ha": 0.4156827424502396,
+      "qgis_budget_ha": 0.41568274244926867,
+      "budget_difference_ha": 9.709455461859307e-13,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "sealed_largest_single_network",
+      "r_corridors": 1,
+      "qgis_corridors": 1,
+      "r_budget_ha": 0.4156827424502396,
+      "qgis_budget_ha": 0.41568274244926867,
+      "budget_difference_ha": 9.709455461859307e-13,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "sealed_most_connected_networks",
+      "r_corridors": 1,
+      "qgis_corridors": 1,
+      "r_budget_ha": 0.4156827424502396,
+      "qgis_budget_ha": 0.41568274244926867,
+      "budget_difference_ha": 9.709455461859307e-13,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    },
+    {
+      "case": "sealed_most_connected_networks_2",
+      "r_corridors": 1,
+      "qgis_corridors": 1,
+      "r_budget_ha": 0.4156827424502396,
+      "qgis_budget_ha": 0.41568274244926867,
+      "budget_difference_ha": 9.709455461859307e-13,
+      "matched_geometry_symmetric_difference_m2": [
+        8313.65484173287
+      ],
+      "geometry_agrees": false,
+      "budget_agrees": true,
+      "membership_budget_agrees": true,
+      "agrees": false
+    }
+  ]
+}

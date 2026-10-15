@@ -1,0 +1,7 @@
+{
+  "name": "terralink-web",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev": "astro dev --port 4323", "build": "astro build"},
+  "dependencies": {"@tailwindcss/vite": "^4.1.18", "astro": "^5.16.9", "tailwindcss": "^4.1.18"}
+}

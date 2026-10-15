@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root{
+  --bg: 251 251 249;
+  --panel: 251 251 249;
+  --text: 18 24 20;
+  --muted: 74 85 70;
+  --border: 31 42 29;
+  --accent: 195 154 58;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.bg-white {
+  background-color: #fbfbf9;
+}
+
+.text-xs {
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+}

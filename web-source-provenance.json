@@ -1,0 +1,24 @@
+{
+  "origin": "Existing SORUS TerraLink tool; local working snapshot",
+  "files": {
+    "src/pages/tools/terralink-online.astro": {
+      "sha256": "1a308f45e28611a06f5b3de1c368db9b913cd052752fc49415b3e8e0aa9aacd7",
+      "destination": "apps/web/src/pages/tools/terralink-online.astro"
+    },
+    "src/styles/global.css": {
+      "sha256": "fdd75e186b4e55a497065f11a78f56cd9a8c545b2a21923987df2b84f5597663",
+      "destination": "apps/web/src/styles/global.css"
+    },
+    "src/assets/terralink-hero.png": {
+      "sha256": "0f62373ed8488e41828747d0dd3132e5a5cc2ebd12290aa2604718b0e421f1ac",
+      "destination": "apps/web/src/assets/terralink-hero.png"
+    }
+  },
+  "adaptations": [
+    "Same-origin /api default",
+    "Standalone header/footer/layout",
+    "Company newsletter disabled",
+    "OpenStreetMap basemap",
+    "Escape output labels"
+  ]
+}

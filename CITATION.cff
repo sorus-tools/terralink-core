@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "Please cite the software version and record its algorithm profile and settings."
+title: "TerraLink: ecological connectivity and habitat-corridor planning"
+type: software
+authors:
+  - family-names: Bishop
+    given-names: Benjamin
+version: 0.1.0a1
+date-released: 2026-10-15
+license: GPL-2.0-or-later
+repository-code: "https://github.com/sorus-tools/terralink-core"

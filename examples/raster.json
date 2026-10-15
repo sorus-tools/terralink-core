@@ -1,0 +1,14 @@
+{
+  "mode": "raster",
+  "input": "../conformance/fixtures/habitat.tif",
+  "parameters": {
+    "strategy": "most_connected_networks",
+    "budget_area": 200,
+    "min_patch_size": 1,
+    "min_corridor_width": 2,
+    "max_search_distance": 80,
+    "units": "pixels",
+    "patch_values": [1],
+    "patch_connectivity": 4
+  }
+}
